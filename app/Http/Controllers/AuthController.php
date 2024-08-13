@@ -11,6 +11,13 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        if (Auth::check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Already logged in',
+            ], 400);
+        }
+
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
@@ -40,6 +47,20 @@ class AuthController extends Controller
                     'email' => $admin->email,
                 ],
             ],
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        // dd($request->all());
+        $user = $request->user();
+        if ($user) {
+            $user->currentAccessToken()->delete();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logout successful',
         ]);
     }
 }
